@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Lugares Proximos</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="google_app_id">67240181378</string>
+</resources>
