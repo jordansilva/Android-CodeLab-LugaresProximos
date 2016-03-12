@@ -2,6 +2,7 @@ package com.codelab.android.lugaresproximos;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -12,6 +13,13 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -47,24 +55,102 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        //Setando uma Latitude e Longitude para o marcador
+        //Adicionando marcador do Google BH
         LatLng googleBh = new LatLng(-19.929532, -43.940726);
-
-        //Criando um marcador
-        MarkerOptions marker = new MarkerOptions();
-        marker.position(googleBh); //Seta a posição do marcador
-        marker.title("Google BH"); //Seta o título do marcador
-        marker.snippet("International Women’s Day"); //Seta uma breve descrição sobre o marcador
-
-        //Cria o marcador padrão com um tom de cor rosa.
-        BitmapDescriptor cor = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE);
-        marker.icon(cor);
-
-        //Adicionando um marcador
-        mMap.addMarker(marker);
+        float cor = BitmapDescriptorFactory.HUE_ROSE;
+        adicionarMarcador("Google BH", "International Women's Day", googleBh, cor);
 
         //Movimenta a camera Zoom no mapa
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(googleBh, 17.0f);
         mMap.moveCamera(cameraUpdate);
+
+        buscarRestaurantesProximos();
+    }
+
+    private void buscarRestaurantesProximos() {
+        //Nearby URL
+        //https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-19.929532,-43.940726&radius=500&types=food&key=AIzaSyAhp_8i1i7H6l-IpqkKk8oU9uIjVt1nGcU
+        String nearbyURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+
+        //Meus parâmetros
+        String location = "location=-19.929532,-43.940726";
+        String radius = "radius=500";
+        String types = "types=food";
+        String key = "key=AIzaSyAhp_8i1i7H6l-IpqkKk8oU9uIjVt1nGcU";
+
+        String url = nearbyURL + location + "&" + radius + "&" + types + "&" + key;
+
+        requestUrl(url);
+    }
+
+
+    /**
+     * Adicionar Marcador no Mapa
+     */
+    public void adicionarMarcador(String nome, String descricao, LatLng posicao, float cor) {
+
+        //Criando marcador
+        MarkerOptions marker = new MarkerOptions();
+        marker.position(posicao); //Seta a posição do marcador
+        marker.title(nome); //Seta o título do marcador
+        marker.snippet(descricao); //Seta uma breve descrição sobre o marcador
+
+        //Cria o marcador padrão com um tom de cor rosa.
+        BitmapDescriptor icone = BitmapDescriptorFactory.defaultMarker(cor);
+        marker.icon(icone);
+
+        //Adicionando um marcador
+        mMap.addMarker(marker);
+    }
+
+    //Requisitando a URL
+    private void requestUrl(String url) {
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get(url, new JsonHttpResponseHandler() {
+
+            @Override
+            public void onStart() {
+                super.onStart();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    JSONArray jsonArray = response.getJSONArray("results");
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject objeto = jsonArray.getJSONObject(i);
+
+                        //Buscando nome e descrição
+                        String nome = objeto.getString("name");
+                        String snippet = objeto.getString("vicinity");
+
+                        //Buscando posição
+                        JSONObject location = objeto.getJSONObject("geometry").getJSONObject("location");
+                        double latitude = location.getDouble("lat");
+                        double longitude = location.getDouble("lng");
+                        LatLng posicao = new LatLng(latitude, longitude);
+
+                        //Adicionando marcador
+                        adicionarMarcador(nome, snippet, posicao, BitmapDescriptorFactory.HUE_BLUE);
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                //Mostrar mensagem caso dê erro na requisição
+                Toast.makeText(getApplicationContext(), responseString, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRetry(int retryNo) {
+                super.onRetry(retryNo);
+            }
+        });
     }
 }
