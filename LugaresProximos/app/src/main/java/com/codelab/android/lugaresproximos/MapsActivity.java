@@ -74,11 +74,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Meus parâmetros
         String location = "location=-19.929532,-43.940726";
-        String radius = "radius=500";
-        String types = "types=food";
-        String key = "key=AIzaSyAhp_8i1i7H6l-IpqkKk8oU9uIjVt1nGcU";
+        String radius = "&radius=500";
+        String types = "&types=food";
+        String key = "&key=AIzaSyAhp_8i1i7H6l-IpqkKk8oU9uIjVt1nGcU";
 
-        String url = nearbyURL + location + "&" + radius + "&" + types + "&" + key;
+        String url = nearbyURL + location + radius + types + key;
 
         requestUrl(url);
     }
