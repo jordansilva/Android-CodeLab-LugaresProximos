@@ -9,3 +9,8 @@ Step-by-step can be follow by branches step-1, step-2, step-3.
   - MapsActivity.java (Line 79) - Google Places HTTP API
 
 #### All code are available in branches.
+```sh
+git clone git@github.com:jordansilva/Android-CodeLab-LugaresProximos.git
+cd Android-CodeLab-LugaresProximos
+git checkout step-3
+```
