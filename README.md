@@ -1,5 +1,4 @@
 ## Android CodeLab Nearby Places: Google Maps + Google Places
-===========================
 
 Android application example using Google Places HTTP API to pin nearest "food places" on Google Maps.
 
@@ -9,5 +8,4 @@ Step-by-step can be follow by branches step-1, step-2, step-3.
   - google_maps_api.xml (Line 18) - Goole Maps API
   - MapsActivity.java (Line 79) - Google Places HTTP API
 
-
-### All code are available in branches.
+#### All code are available in branches.
